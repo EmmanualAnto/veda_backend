@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 // Contact form endpoint
 app.post("/send", async (req, res) => {
-    const { name, email, message } = req.body;
+    const { name, email, phone, message } = req.body;
 
     try {
         const transporter = nodemailer.createTransport({
@@ -25,11 +25,40 @@ app.post("/send", async (req, res) => {
             },
         });
 
+        // HTML email template
+        const htmlContent = `
+        <div style="font-family: Arial, sans-serif; color: #333; line-height:1.5;">
+            <h2 style="color:#0035FF;">New Contact Form Submission</h2>
+
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+
+            <p><strong>Message:</strong></p>
+            <p style="background:#f4f4f4; padding:10px; border-radius:5px;">${message}</p>
+
+            <p>
+                <a href="mailto:${email}" style="
+                    display:inline-block;
+                    padding:10px 20px;
+                    background:#0035FF;
+                    color:white;
+                    text-decoration:none;
+                    border-radius:5px;
+                    font-weight:bold;
+                ">Reply</a>
+            </p>
+
+            <hr>
+            <p style="font-size:12px; color:#888;">Sent via Veda Contact Form</p>
+        </div>
+        `;
+
         const mailOptions = {
-            from: email,
-            to: process.env.EMAIL_USER,
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_USER, // receive it yourself
             subject: `New message from ${name}`,
-            text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+            html: htmlContent,
         };
 
         await transporter.sendMail(mailOptions);
