@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: "*" })); // allow all origins for Flutter Web
 app.use(bodyParser.json());
 
 // Brevo (Sendinblue) transporter
@@ -57,7 +57,7 @@ app.post("/send", async (req, res) => {
 
     const mailOptions = {
         from: process.env.BREVO_EMAIL,   // verified sender
-        to: process.env.BREVO_EMAIL,     // where you want to receive
+        to: process.env.BREVO_EMAIL,     // recipient
         subject: `New message from ${name}`,
         html: htmlContent,
     };
@@ -66,7 +66,7 @@ app.post("/send", async (req, res) => {
         await transporter.sendMail(mailOptions);
         res.status(200).json({ success: true, message: "Message sent successfully!" });
     } catch (err) {
-        console.error(err);
+        console.error("Error sending message:", err);
         res.status(500).json({ success: false, message: "Error sending message" });
     }
 });
